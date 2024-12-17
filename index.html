@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Floating Heart Animation</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      background-color: #000; /* Black background for contrast */
+    }
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="heartCanvas"></canvas>
+  
+  <script>
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const hearts = [];
+
+    // Function to create a heart
+    function createHeart(x, y, size, color) {
+      this.x = x;
+      this.y = y;
+      this.size = size;
+      this.color = color;
+      this.dy = Math.random() * -2 - 1; // Speed for upward movement
+
+      this.draw = function () {
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+
+        // Draw a heart shape using Bezier curves
+        ctx.moveTo(this.x, this.y);
+        ctx.bezierCurveTo(this.x - this.size / 2, this.y - this.size / 2, 
+                          this.x - this.size, this.y + this.size / 3, 
+                          this.x, this.y + this.size);
+        ctx.bezierCurveTo(this.x + this.size, this.y + this.size / 3, 
+                          this.x + this.size / 2, this.y - this.size / 2, 
+                          this.x, this.y);
+
+        ctx.fill();
+        ctx.closePath();
+      };
+
+      this.update = function () {
+        this.y += this.dy; // Move the heart upward
+        this.draw();
+      };
+    }
+
+    // Generate multiple hearts
+    function generateHearts() {
+      setInterval(() => {
+        const x = Math.random() * canvas.width;
+        const y = canvas.height;
+        const size = Math.random() * 20 + 10; // Heart size between 10-30px
+        const color = `hsl(${Math.random() * 360}, 100%, 60%)`; // Random colors
+        hearts.push(new createHeart(x, y, size, color));
+      }, 200);
+    }
+
+    // Animation loop
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < hearts.length; i++) {
+        hearts[i].update();
+        // Remove hearts that move off-screen
+        if (hearts[i].y < -30) {
+          hearts.splice(i, 1);
+          i--;
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
+    // Resize canvas when the window resizes
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    generateHearts();
+    animate();
+  </script>
+</body>
+</html>
